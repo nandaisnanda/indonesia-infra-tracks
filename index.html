@@ -34,8 +34,15 @@
   .era:hover{background:rgba(255,255,255,.04);border-color:var(--line2)}
   .era:active{transform:scale(.99)}
   .era.dim{opacity:.38}
-  .era.solo{border-color:var(--c);box-shadow:0 0 0 1px var(--c) inset;background:rgba(255,255,255,.05)}
-  .avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0b0d10;flex:none}
+  .era.solo{border-color:var(--c);box-shadow:0 0 0 1px var(--c) inset,0 0 22px color-mix(in srgb,var(--c) 40%,transparent);background:rgba(255,255,255,.05)}
+  .era{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 70%);border-left:3px solid var(--c)}
+  .avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0b0d10;flex:none;box-shadow:0 0 16px color-mix(in srgb,var(--c) 55%,transparent)}
+  .bar i{box-shadow:0 0 8px var(--c)}
+  #time{--yc:#fff;border-color:color-mix(in srgb,var(--yc) 55%,var(--line));box-shadow:0 10px 40px rgba(0,0,0,.35),0 0 28px color-mix(in srgb,var(--yc) 28%,transparent);transition:border-color .4s,box-shadow .4s}
+  #year{color:var(--yc);text-shadow:0 0 14px color-mix(in srgb,var(--yc) 60%,transparent);transition:color .4s}
+  #time input[type=range]{accent-color:var(--yc)}
+  #play{background:var(--yc);transition:background .4s,transform .15s}
+  #play:hover{transform:scale(1.08)}
   .era .t{flex:1;min-width:0}
   .era .n{font-weight:600;font-size:14px}
   .era .p{color:var(--muted);font-size:12px;font-family:"JetBrains Mono",monospace}
@@ -107,10 +114,10 @@
 
 <script>
 const ERAS = [
-  {id:"pre", nama:"Before 2004", periode:"to Oct 2004", ini:"–",  color:"#9ca3af", start:"1000-01-01", end:"2004-10-20"},
-  {id:"sby", nama:"Susilo Bambang Yudhoyono", periode:"Oct 2004 – Oct 2014", ini:"SBY", color:"#56B4E9", start:"2004-10-20", end:"2014-10-20"},
-  {id:"jkw", nama:"Joko Widodo", periode:"Oct 2014 – Oct 2024", ini:"JKW", color:"#E69F00", start:"2014-10-20", end:"2024-10-20"},
-  {id:"pbw", nama:"Prabowo Subianto", periode:"Oct 2024 – present", ini:"PS", color:"#CC79A7", start:"2024-10-20", end:"2100-01-01"},
+  {id:"pre", nama:"Before 2004", periode:"to Oct 2004", ini:"–",  color:"#a78bfa", start:"1000-01-01", end:"2004-10-20"},
+  {id:"sby", nama:"Susilo Bambang Yudhoyono", periode:"Oct 2004 – Oct 2014", ini:"SBY", color:"#1fb6ff", start:"2004-10-20", end:"2014-10-20"},
+  {id:"jkw", nama:"Joko Widodo", periode:"Oct 2014 – Oct 2024", ini:"JKW", color:"#ff9500", start:"2014-10-20", end:"2024-10-20"},
+  {id:"pbw", nama:"Prabowo Subianto", periode:"Oct 2024 – present", ini:"PS", color:"#ff2d87", start:"2024-10-20", end:"2100-01-01"},
   {id:"ada", nama:"Existing, date unknown", periode:"railways and roads without a date", ini:"•", color:"#6b7686"},
   {id:"raw", nama:"Undated toll sections", periode:"spans eras / not yet open", ini:"?", color:"#5b6573"},
 ];
@@ -256,6 +263,9 @@ function addLayerSet(k){
   const paint = {"line-color":colorExpr,"line-width":W(...L.w),"line-opacity":faint};
   if(L.dash) paint["line-dasharray"] = L.dash;
   map.addLayer({id:k+"-core",type:"line",source:k,layout:round,paint});
+  // flash layer: lines that opened in the current year, animated by flashTick()
+  map.addLayer({id:k+"-new",type:"line",source:k,layout:round,paint:{
+    "line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.5,L.glow[1]*.4),"line-opacity":0}});
   map.addLayer({id:k+"-hl",type:"line",source:k,layout:round,filter:["==",["get","nama"],""],paint:{
     "line-color":light?"#111":"#fff","line-width":W(L.w[0]+1,L.w[1]+2),"line-opacity":.9}});
   map.addLayer({id:k+"-hit",type:"line",source:k,layout:round,paint:{"line-color":"#000","line-opacity":0,"line-width":12}});
@@ -263,7 +273,26 @@ function addLayerSet(k){
 }
 function addAll(){ ORDER.forEach(k=>{ if(DATA[k] && !map.getSource(k)) addLayerSet(k); }); }
 function applyFilter(){
-  ORDER.forEach(k=>{ if(map.getLayer(k+"-core")) [k+"-under",k+"-core",k+"-hit"].forEach(l=>map.setFilter(l,filterExpr())); });
+  ORDER.forEach(k=>{ if(map.getLayer(k+"-core")){
+    [k+"-under",k+"-core",k+"-hit"].forEach(l=>map.setFilter(l,filterExpr()));
+    const f = ["all",["==",["get","tahun"],state.year]];
+    if(state.solo) f.push(["==",["get","era"],state.solo]);
+    map.setFilter(k+"-new",f);
+  } });
+}
+
+// Brief expanding glow on lines that opened in the selected year
+let flashAt = 0, flashRaf = 0;
+function flash(){ flashAt = performance.now(); if(!flashRaf) flashRaf = requestAnimationFrame(flashTick); }
+function flashTick(t){
+  const a = Math.max(0, 1-(t-flashAt)/1000), m = 1+(1-a)*1.8;
+  ORDER.forEach(k=>{
+    if(!map.getLayer(k+"-new")) return;
+    const L = LAYERS[k];
+    map.setPaintProperty(k+"-new","line-opacity",a);
+    map.setPaintProperty(k+"-new","line-width",W(L.glow[0]*m,L.glow[1]*m));
+  });
+  flashRaf = a>0 ? requestAnimationFrame(flashTick) : 0;
 }
 
 async function ensureLayer(k){
@@ -298,7 +327,7 @@ function layerKm(){
 function renderLayers(){
   const lk = layerKm();
   document.getElementById("layers").innerHTML = ORDER.slice().reverse().map(k=>`
-    <label class="lay" style="--c:${k==="tol"?"#E69F00":k==="rel"?"#56B4E9":"#9ca3af"}">
+    <label class="lay" style="--c:${k==="tol"?"#ff9500":k==="rel"?"#1fb6ff":"#a78bfa"}">
       <input type="checkbox" data-k="${k}" ${on[k]?"checked":""}>
       <i class="${LAYERS[k].dash?"d":""}"></i><span>${LAYERS[k].label}</span>
       <span class="k">${loading[k]?"loading…":(on[k]&&DATA[k]?fmt(lk[k])+" km":"")}</span>
@@ -308,7 +337,7 @@ function renderLayers(){
       const k = el.dataset.k; on[k] = el.checked;
       if(popup) popup.remove();
       if(on[k] && !DATA[k]) await ensureLayer(k);
-      ORDER.forEach(j=>{ if(map.getLayer(j+"-core")) ["under","core","hl","hit"].forEach(s=>map.setLayoutProperty(`${j}-${s}`,"visibility",on[j]?"visible":"none")); });
+      ORDER.forEach(j=>{ if(map.getLayer(j+"-core")) ["under","core","new","hl","hit"].forEach(s=>map.setLayoutProperty(`${j}-${s}`,"visibility",on[j]?"visible":"none")); });
       update();
     };
   });
@@ -342,6 +371,7 @@ function renderStats(){
 
 function update(){
   document.getElementById("year").textContent = state.year;
+  document.getElementById("time").style.setProperty("--yc", ERAS.find(e=>e.id===eraOf(`${state.year}-07-01`)).color);
   applyFilter();
   renderStats();
   renderLayers();
@@ -410,16 +440,16 @@ map.on("load", async ()=>{
 });
 
 const slider=document.getElementById("slider"), play=document.getElementById("play");
-slider.oninput=()=>{ state.year=+slider.value; update(); };
+slider.oninput=()=>{ state.year=+slider.value; update(); flash(); };
 let timer=null;
 play.onclick=()=>{
   if(timer){ clearInterval(timer); timer=null; play.textContent="▶"; return; }
   if(state.year>=+slider.max) state.year=+slider.min-1;
   play.textContent="❚❚";
   timer=setInterval(()=>{
-    state.year++; slider.value=state.year; update();
+    state.year++; slider.value=state.year; update(); flash();
     if(state.year>=+slider.max){ clearInterval(timer); timer=null; play.textContent="▶"; }
-  },350);
+  },500);
 };
 </script>
 </body>
