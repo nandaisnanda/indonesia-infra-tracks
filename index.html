@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indonesia Toll Lines</title>
+<meta name="description" content="Indonesia's toll road network by the year each section opened, grouped by presidential era. #30DayMapChallenge Day 2: Lines.">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d10; --panel:rgba(14,17,22,.88); --line:#2a303a; --line2:#3a424f;
+    --ink:#eceef1; --muted:#8f98a6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif}
+  #map{position:fixed;inset:0}
+  .panel{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 10px 40px rgba(0,0,0,.35)}
+  #side{top:16px;left:16px;width:350px;max-height:calc(100% - 128px);overflow:auto;padding:20px;scrollbar-width:thin}
+  h1{font-size:24px;line-height:1.1;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.5}
+  .reset{display:none;width:100%;margin:0 0 10px;padding:8px 10px;border-radius:10px;border:1px dashed var(--line2);background:transparent;color:var(--ink);font:500 13px "Space Grotesk",sans-serif;cursor:pointer}
+  .reset.on{display:block}
+  .reset:hover{background:rgba(255,255,255,.06)}
+  .era{display:flex;gap:12px;align-items:center;padding:10px;border-radius:12px;border:1px solid var(--line);margin-bottom:8px;cursor:pointer;transition:opacity .25s,border-color .2s,background .2s,transform .2s}
+  .era:hover{background:rgba(255,255,255,.04);border-color:var(--line2)}
+  .era:active{transform:scale(.99)}
+  .era.dim{opacity:.38}
+  .era.solo{border-color:var(--c);box-shadow:0 0 0 1px var(--c) inset;background:rgba(255,255,255,.05)}
+  .avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0b0d10;flex:none}
+  .era .t{flex:1;min-width:0}
+  .era .n{font-weight:600;font-size:14px}
+  .era .p{color:var(--muted);font-size:12px;font-family:"JetBrains Mono",monospace}
+  .era .km{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:14px;text-align:right}
+  .bar{height:4px;border-radius:2px;margin-top:6px;background:var(--line);overflow:hidden}
+  .bar i{display:block;height:100%;transition:width .5s}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+  #time{left:50%;transform:translateX(-50%);bottom:24px;width:min(660px,calc(100% - 32px));padding:12px 18px;display:flex;gap:14px;align-items:center}
+  #play{background:var(--ink);color:var(--bg);border:0;border-radius:50%;width:38px;height:38px;font-size:15px;cursor:pointer;flex:none}
+  #year{font-family:"JetBrains Mono",monospace;font-size:26px;font-weight:600;width:72px;text-align:center}
+  input[type=range]{flex:1;accent-color:var(--ink)}
+  #total{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+  #bmbox{top:16px;right:16px;padding:10px;width:min(300px,calc(100% - 32px))}
+  #bmbox .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 2px 8px}
+  #bmgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .bm{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--ink);font:500 12px "Space Grotesk",sans-serif;cursor:pointer;text-align:left}
+  .bm:hover{border-color:var(--line2);background:rgba(255,255,255,.05)}
+  .bm.on{border-color:var(--ink);background:rgba(255,255,255,.1)}
+  .bm i{width:16px;height:16px;border-radius:5px;flex:none;border:1px solid rgba(255,255,255,.25)}
+  #demo{position:absolute;bottom:96px;right:16px;padding:8px 12px;border-radius:8px;background:#7c2d12;color:#fff;font-size:12px;display:none;max-width:260px}
+  .maplibregl-popup-content{background:#0f1217;color:var(--ink);border:1px solid var(--line2);border-radius:12px;font-family:"Space Grotesk",sans-serif;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:290px}
+  .maplibregl-popup-anchor-bottom .maplibregl-popup-tip{border-top-color:#0f1217}
+  .maplibregl-popup-anchor-top .maplibregl-popup-tip{border-bottom-color:#0f1217}
+  .pp-n{font-weight:700;margin-bottom:2px}
+  .pp-s{color:var(--muted);font-size:12px;margin-bottom:6px}
+  .pp-m{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);line-height:1.55}
+  .pp-m b{color:var(--ink);font-weight:600}
+  .pp-h{font-size:11px;color:var(--muted);margin-top:8px;border-top:1px solid var(--line);padding-top:6px}
+  @media (max-width:640px){
+    #side{width:calc(100% - 32px);max-height:40%;padding:14px}
+    h1{font-size:19px}
+    #time{bottom:12px}
+    #bmbox{top:auto;bottom:84px;right:16px;width:auto}
+    #bmgrid{grid-template-columns:repeat(4,auto)}
+    .bm span{display:none}
+    #bmbox .lbl{display:none}
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<aside id="side" class="panel">
+  <h1>Indonesia Toll Lines</h1>
+  <p class="sub">Toll roads by <b>year of opening</b>, grouped by presidential term. Click a card to focus on one era, click a line to zoom to that toll road.</p>
+  <button id="reset" class="reset">← Show all eras</button>
+  <div id="eras"></div>
+  <div class="note">
+    <b>How to read:</b> color shows when a toll section opened, not who planned or built it. Grey = opening date not found, section not yet split out, or not yet open.<br><br>
+    Data: geometry © OpenStreetMap contributors (ODbL); opening dates from Indonesian Wikipedia and news reports, not verified against BPJT. Map: Web Mercator, for exploration, not for comparing areas.<br>
+    #30DayMapChallenge · Day 2 Lines · Ananda Gunawan
+  </div>
+</aside>
+
+<div id="bmbox" class="panel">
+  <div class="lbl">Basemap</div>
+  <div id="bmgrid"></div>
+</div>
+
+<div id="demo"></div>
+
+<div id="time" class="panel">
+  <button id="play" aria-label="Play">▶</button>
+  <div id="year">2026</div>
+  <input id="slider" type="range" min="1978" max="2026" value="2026" step="1" aria-label="Year">
+  <div id="total">0 km</div>
+</div>
+
+<script>
+const ERAS = [
+  {id:"pre", nama:"Before 2004", periode:"1978 – Oct 2004", ini:"–",  color:"#9ca3af", start:"1900-01-01", end:"2004-10-20"},
+  {id:"sby", nama:"Susilo Bambang Yudhoyono", periode:"Oct 2004 – Oct 2014", ini:"SBY", color:"#56B4E9", start:"2004-10-20", end:"2014-10-20"},
+  {id:"jkw", nama:"Joko Widodo", periode:"Oct 2014 – Oct 2024", ini:"JKW", color:"#E69F00", start:"2014-10-20", end:"2024-10-20"},
+  {id:"pbw", nama:"Prabowo Subianto", periode:"Oct 2024 – present", ini:"PS", color:"#CC79A7", start:"2024-10-20", end:"2100-01-01"},
+  {id:"raw", nama:"Undated", periode:"spans eras / not yet open", ini:"?", color:"#5b6573"},
+];
+const eraOf = d => (ERAS.find(e => d >= e.start && d < e.end) || ERAS[0]).id;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => n.toLocaleString("en-US",{maximumFractionDigits:1});
+const mobile = () => innerWidth <= 640;
+
+// Line length (km) when the panjang_km column is empty
+function lenKm(geom){
+  const R=6371, rad=x=>x*Math.PI/180;
+  const seg = c => { let s=0; for(let i=1;i<c.length;i++){
+    const [a,b]=[c[i-1],c[i]], dLat=rad(b[1]-a[1]), dLon=rad(b[0]-a[0]);
+    const h=Math.sin(dLat/2)**2+Math.cos(rad(a[1]))*Math.cos(rad(b[1]))*Math.sin(dLon/2)**2;
+    s+=2*R*Math.asin(Math.sqrt(h)); } return s; };
+  if(geom.type==="LineString") return seg(geom.coordinates);
+  if(geom.type==="MultiLineString") return geom.coordinates.reduce((t,c)=>t+seg(c),0);
+  return 0;
+}
+
+const DEMO = {type:"FeatureCollection",features:[
+  ["Jagorawi","1978-03-09",[[106.87,-6.25],[106.85,-6.65]]],
+  ["Jakarta–Cikampek","1988-09-01",[[106.88,-6.24],[107.43,-6.41]]],
+  ["Cipularang","2005-04-26",[[107.44,-6.43],[107.48,-6.84]]],
+  ["Bali Mandara","2013-09-23",[[115.21,-8.74],[115.20,-8.80]]],
+  ["Cikopo–Palimanan","2015-06-13",[[107.45,-6.45],[108.43,-6.71]]],
+  ["Bakauheni–Terbanggi Besar","2019-03-08",[[105.75,-5.87],[105.20,-4.92]]],
+].map(([n,d,c])=>({type:"Feature",properties:{nama:n,tgl_operasi:d},geometry:{type:"LineString",coordinates:c}}))};
+
+let RAW = false;
+async function loadData(){
+  const banner = document.getElementById("demo");
+  try{
+    const r = await fetch("data/tol.geojson",{cache:"no-store"});
+    if(!r.ok) throw 0;
+    return await r.json();
+  }catch(e){
+    banner.style.display="block";
+    try{
+      // No tol.geojson yet: use raw Overpass geometry, without opening dates
+      const r = await fetch("data/osm_motorway.geojson");
+      if(!r.ok) throw 0;
+      RAW = true;
+      banner.textContent = "RAW OSM GEOMETRY: no opening dates yet, so lines are not colored by era.";
+      return await r.json();
+    }catch(e2){
+      banner.textContent = "DEMO: illustrative straight lines, not real geometry.";
+      return DEMO;
+    }
+  }
+}
+
+function prep(fc){
+  if(RAW){
+    fc.features = fc.features.filter(f => f.geometry).map(f=>({type:"Feature",geometry:f.geometry,
+      properties:{nama:f.properties.name||"Unnamed", tgl_operasi:"", tahun:0, era:"raw", km:0}}));
+    return fc;
+  }
+  fc.features = fc.features.filter(f => f.geometry && f.properties);
+  fc.features.forEach(f=>{
+    const p=f.properties;
+    p.km = +p.panjang_km > 0 ? +p.panjang_km : +lenKm(f.geometry).toFixed(2);
+    if(!p.tgl_operasi){ p.tgl_operasi=""; p.tahun=0; p.era="raw"; return; }
+    const d=String(p.tgl_operasi).slice(0,10);
+    p.tgl_operasi=d; p.tahun=+d.slice(0,4); p.era=eraOf(d);
+  });
+  return fc;
+}
+
+// ---------- basemap ----------
+const CARTO = "https://basemaps.cartocdn.com/gl/";
+const OFM = "https://tiles.openfreemap.org/styles/";
+const raster = (tiles, attr, max=19) => ({version:8, sources:{r:{type:"raster", tiles, tileSize:256, maxzoom:max, attribution:attr}}, layers:[{id:"r",type:"raster",source:"r"}]});
+// mode = line style: "dark" (glow) or "light" (white casing)
+const BASEMAPS = [
+  {k:"Dark",          sw:"#15181d", mode:"dark",  style:CARTO+"dark-matter-nolabels-gl-style/style.json"},
+  {k:"Dark + labels", sw:"#232830", mode:"dark",  style:CARTO+"dark-matter-gl-style/style.json"},
+  {k:"Light",         sw:"#f1f1ee", mode:"light", style:CARTO+"positron-nolabels-gl-style/style.json"},
+  {k:"Light + labels",sw:"#e3e5e8", mode:"light", style:CARTO+"positron-gl-style/style.json"},
+  {k:"Voyager",       sw:"#f2e9d8", mode:"light", style:CARTO+"voyager-gl-style/style.json"},
+  {k:"Liberty",       sw:"#cfe3c4", mode:"light", style:OFM+"liberty"},
+  {k:"Bright",        sw:"#f6d9a8", mode:"light", style:OFM+"bright"},
+  {k:"OpenStreetMap", sw:"#a9d3de", mode:"light", style:raster(["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],"© OpenStreetMap contributors")},
+  {k:"Topographic",    sw:"#b5d19a", mode:"light", style:raster(["https://a.tile.opentopomap.org/{z}/{x}/{y}.png","https://b.tile.opentopomap.org/{z}/{x}/{y}.png"],"© OpenTopoMap, © OpenStreetMap contributors",17)},
+  {k:"Satellite",       sw:"#1d4a3a", mode:"dark",  style:raster(["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],"Esri, Maxar, Earthstar Geographics")},
+];
+let bmIdx = 1;
+
+const state = {year:2026, solo:null};
+let DATA, popup, pinned = false;
+
+const map = new maplibregl.Map({
+  container:"map", style:BASEMAPS[bmIdx].style,
+  center:[113,-3.2], zoom:4.3, minZoom:3.5, maxZoom:16, attributionControl:{compact:true}
+});
+map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
+
+// ---------- view ----------
+const pad = () => mobile() ? {top:innerHeight*.44, bottom:150, left:24, right:24} : {top:70, bottom:130, left:400, right:70};
+function bboxOf(pred){
+  const b=[Infinity,Infinity,-Infinity,-Infinity];
+  const add = c => { if(c[0]<b[0])b[0]=c[0]; if(c[1]<b[1])b[1]=c[1]; if(c[0]>b[2])b[2]=c[0]; if(c[1]>b[3])b[3]=c[1]; };
+  for(const f of DATA.features){
+    if(!pred(f.properties)) continue;
+    const g=f.geometry;
+    (g.type==="LineString"?[g.coordinates]:g.coordinates).forEach(l=>l.forEach(add));
+  }
+  return isFinite(b[0]) ? [[b[0],b[1]],[b[2],b[3]]] : null;
+}
+const fitTo = (bb, maxZoom=11) => bb && map.fitBounds(bb,{padding:pad(),maxZoom,duration:1500,essential:true});
+const home = () => map.flyTo({center:[113,-3.2],zoom:mobile()?3.6:4.3,duration:1500,essential:true});
+
+function filterExpr(){
+  const f = ["all", ["<=",["get","tahun"],state.year]];
+  if(state.solo) f.push(["==",["get","era"],state.solo]);
+  return f;
+}
+const colorExpr = ["match",["get","era"], ...ERAS.flatMap(e=>[e.id,e.color]), "#9aa4b2"];
+const W = (a,b) => ["interpolate",["exponential",1.4],["zoom"],4,a,8,a*2.2,12,b,16,b*1.6];
+
+function addTol(){
+  const light = BASEMAPS[bmIdx].mode==="light";
+  map.addSource("tol",{type:"geojson",data:DATA});
+  const round = {"line-cap":"round","line-join":"round"};
+  if(light){
+    map.addLayer({id:"tol-under",type:"line",source:"tol",layout:round,paint:{"line-color":"#ffffff","line-opacity":.95,"line-width":W(5,12)}});
+  }else{
+    map.addLayer({id:"tol-under",type:"line",source:"tol",layout:round,paint:{"line-color":colorExpr,"line-width":W(8,24),"line-blur":W(5,12),"line-opacity":.4}});
+  }
+  map.addLayer({id:"tol-core",type:"line",source:"tol",layout:round,paint:{
+    "line-color":colorExpr,"line-width":W(2.6,7),"line-opacity":["case",["==",["get","era"],"raw"],.85,1]}});
+  map.addLayer({id:"tol-hl",type:"line",source:"tol",layout:round,filter:["==",["get","nama"],""],paint:{
+    "line-color":light?"#111":"#fff","line-width":W(3.6,9),"line-opacity":.9}});
+  applyFilter();
+}
+function applyFilter(){ if(map.getLayer("tol-core")) ["tol-under","tol-core"].forEach(l=>map.setFilter(l,filterExpr())); }
+
+function renderStats(){
+  const km = Object.fromEntries(ERAS.map(e=>[e.id,0]));
+  DATA.features.forEach(f=>{ if(f.properties.tahun<=state.year) km[f.properties.era]+=f.properties.km; });
+  const max = Math.max(...Object.values(km),1);
+  document.getElementById("eras").innerHTML = ERAS.filter(e=>!RAW||e.id==="raw").map(e=>`
+    <div class="era ${state.solo&&state.solo!==e.id?"dim":""} ${state.solo===e.id?"solo":""}" style="--c:${e.color}" data-id="${e.id}" role="button" tabindex="0" aria-pressed="${state.solo===e.id}">
+      <div class="avatar" style="background:${e.color}">${e.ini}</div>
+      <div class="t">
+        <div class="n">${e.nama}</div>
+        <div class="p">${e.periode}</div>
+        <div class="bar"><i style="width:${km[e.id]/max*100}%;background:${e.color}"></i></div>
+      </div>
+      <div class="km">${fmt(km[e.id])}<br><span class="p">km</span></div>
+    </div>`).join("");
+  const shown = ERAS.filter(e=>!state.solo||state.solo===e.id).reduce((s,e)=>s+km[e.id],0);
+  document.getElementById("total").textContent = RAW ? `${DATA.features.length.toLocaleString("en-US")} OSM ways` : `${fmt(shown)} km`;
+  document.getElementById("reset").classList.toggle("on",!!state.solo);
+  document.querySelectorAll(".era").forEach(el=>{
+    const pick=()=>focusEra(el.dataset.id);
+    el.onclick=pick; el.onkeydown=ev=>{ if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();pick();} };
+  });
+}
+
+function update(){
+  document.getElementById("year").textContent = state.year;
+  applyFilter();
+  renderStats();
+}
+
+function focusEra(id){
+  if(popup) popup.remove();
+  if(state.solo===id){ resetEra(); return; }
+  state.solo=id; update();
+  fitTo(bboxOf(p=>p.era===id && p.tahun<=state.year), 8);
+}
+function resetEra(){ state.solo=null; update(); home(); }
+document.getElementById("reset").onclick = resetEra;
+
+// ---------- popup & click ----------
+function popupHTML(p){
+  const era=ERAS.find(x=>x.id===p.era);
+  const rows = p.era==="raw"
+    ? `<b>${esc(p.status||"Opening date not filled in")}</b>`
+    : `Opened: <b>${esc(p.tgl_operasi)}</b><br>Era: <b style="color:${era.color}">${esc(era.nama)}</b>`;
+  return `<div class="pp-n">${esc(p.nama)}</div>${p.seksi?`<div class="pp-s">Section ${esc(p.seksi)}</div>`:""}
+    <div class="pp-m">${rows}<br>Carriageway length: ${fmt(+p.km)} km${p.catatan?`<br>${esc(p.catatan)}`:""}${p.sumber?`<br>Source: ${esc(p.sumber)}`:""}</div>
+    <div class="pp-h">Click to zoom to this toll road</div>`;
+}
+function wirePointer(){
+  popup = new maplibregl.Popup({closeButton:false,offset:10,maxWidth:"290px"});
+  map.on("mousemove","tol-core",e=>{
+    map.getCanvas().style.cursor="pointer";
+    const p=e.features[0].properties;
+    map.setFilter("tol-hl",["==",["get","nama"],p.nama]);
+    if(!pinned) popup.setLngLat(e.lngLat).setHTML(popupHTML(p)).addTo(map);
+  });
+  map.on("mouseleave","tol-core",()=>{
+    map.getCanvas().style.cursor=""; map.setFilter("tol-hl",["==",["get","nama"],""]);
+    if(!pinned) popup.remove();
+  });
+  map.on("click","tol-core",e=>{
+    const p=e.features[0].properties;
+    pinned = true;
+    popup.setLngLat(e.lngLat).setHTML(popupHTML(p)).addTo(map);
+    fitTo(bboxOf(q=>q.nama===p.nama && q.tahun<=state.year));
+    map.once("moveend",()=>{ pinned=false; });
+  });
+}
+
+// ---------- basemap switcher ----------
+const grid = document.getElementById("bmgrid");
+grid.innerHTML = BASEMAPS.map((b,i)=>`<button class="bm ${i===bmIdx?"on":""}" data-i="${i}" title="${b.k}"><i style="background:${b.sw}"></i><span>${b.k}</span></button>`).join("");
+grid.onclick = e=>{
+  const btn=e.target.closest(".bm"); if(!btn) return;
+  bmIdx=+btn.dataset.i;
+  grid.querySelectorAll(".bm").forEach(x=>x.classList.toggle("on",x===btn));
+  map.setStyle(BASEMAPS[bmIdx].style,{diff:false}); // setStyle drops the toll layers; they are re-added on style.load
+};
+// every time a new style finishes loading, re-add the toll layers (also on first load if data is ready)
+map.on("style.load", ()=>{ if(DATA && !map.getSource("tol")) addTol(); });
+
+map.on("load", async ()=>{
+  DATA = prep(await loadData());
+  if(!map.getSource("tol")) addTol();
+  wirePointer();
+  update();
+});
+
+const slider=document.getElementById("slider"), play=document.getElementById("play");
+slider.oninput=()=>{ state.year=+slider.value; update(); };
+let timer=null;
+play.onclick=()=>{
+  if(timer){ clearInterval(timer); timer=null; play.textContent="▶"; return; }
+  if(state.year>=+slider.max) state.year=+slider.min-1;
+  play.textContent="❚❚";
+  timer=setInterval(()=>{
+    state.year++; slider.value=state.year; update();
+    if(state.year>=+slider.max){ clearInterval(timer); timer=null; play.textContent="▶"; }
+  },350);
+};
+</script>
+</body>
+</html>

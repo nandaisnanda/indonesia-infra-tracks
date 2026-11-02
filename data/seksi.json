@@ -1,0 +1,81 @@
+{
+  "_catatan": "Toll roads that span eras are split by section. titik = ordered junctions/toll gates along the road (matched to the nearest OSM node with that name; [lon,lat] for manual points). seksi[i] = date of the stretch between titik[i] and titik[i+1]; tgl null = not yet open or date uncertain (shown grey with a note). Ways beyond the ends of the road follow the nearest section.",
+  "ruas": [
+    {"nama": "Jalan Tol Semarang–Solo",
+     "titik": ["Tembalang", "Ungaran", "Bawen", "Salatiga", "Boyolali", "Kartasura"],
+     "seksi": [
+       {"tgl": "2011-11-11", "sumber": "id.wikipedia Jalan Tol Semarang–Solo (Section 1 Tembalang–Ungaran)"},
+       {"tgl": "2014-04-04", "sumber": "id.wikipedia Jalan Tol Semarang–Solo (Section 2 Ungaran–Bawen)"},
+       {"tgl": "2017-09-25", "sumber": "id.wikipedia Jalan Tol Semarang–Solo (Section 3 Bawen–Salatiga)"},
+       {"tgl": "2018-12-20", "sumber": "id.wikipedia Jalan Tol Semarang–Solo (Section 4 Salatiga–Boyolali)"},
+       {"tgl": "2018-12-20", "sumber": "id.wikipedia Jalan Tol Semarang–Solo (Section 5 Boyolali–Kartasura)"}]},
+
+    {"nama": "Jalan Tol Banda Aceh-Sigli",
+     "titik": ["Padang Tiji", "Seulimeum", "Jantho", "Indrapuri", "Blang Bintang", "Baitussalam"],
+     "seksi": [
+       {"tgl": null, "status": "Opening not confirmed (functional test Sep 2026)", "sumber": "id.wikipedia Jalan Tol Sigli–Banda Aceh (Section 1)"},
+       {"tgl": "2022-03-08", "sumber": "id.wikipedia Jalan Tol Sigli–Banda Aceh (Section 2)"},
+       {"tgl": "2021-02-26", "sumber": "id.wikipedia Jalan Tol Sigli–Banda Aceh (Section 3)"},
+       {"tgl": "2020-08-25", "sumber": "id.wikipedia Jalan Tol Sigli–Banda Aceh (Section 4, inauguration date)"},
+       {"tgl": "2023-06-22", "sumber": "id.wikipedia Jalan Tol Sigli–Banda Aceh (Sections 5 and 6)"}]},
+
+    {"nama": "Jalan Tol Binjai–Langsa",
+     "titik": ["Binjai", "Stabat", "Tanjung Pura", "Pangkalan Brandan"],
+     "seksi": [
+       {"tgl": "2022-02-04", "sumber": "id.wikipedia Jalan Tol Binjai–Langsa (Section 1, inauguration)"},
+       {"tgl": "2023-09-20", "sumber": "id.wikipedia Jalan Tol Binjai–Langsa (Stabat–Kuala Bingai 20 Sep 2023, Kuala Bingai–Tanjung Pura 29 Jan 2024)"},
+       {"tgl": "2025-03-11", "catatan": "In functional use since the 2024/2025 Christmas–New Year period", "sumber": "id.wikipedia Jalan Tol Binjai–Langsa (Section 3)"}]},
+
+    {"nama": "Jalan Tol Cikampek–Purwakarta–Padalarang",
+     "titik": ["Kalihurip", "Sadang", "Cikamuning", "Padalarang"],
+     "seksi": [
+       {"tgl": "2003-08-01", "sumber": "id.wikipedia Jalan Tol Cikampek–Purwakarta–Padalarang (Phase 1)"},
+       {"tgl": "2005-04-26", "sumber": "id.wikipedia Jalan Tol Cikampek–Purwakarta–Padalarang (Phase 2 Sadang–Cikamuning)"},
+       {"tgl": "2003-09-21", "sumber": "id.wikipedia Jalan Tol Cikampek–Purwakarta–Padalarang (Phase 1 Cikamuning–Padalarang)"}]},
+
+    {"nama": "Jalan Tol Serang–Panimbang",
+     "titik": ["Walantaka", "Rangkasbitung", "Cileles"],
+     "seksi": [
+       {"tgl": "2021-11-17", "sumber": "id.wikipedia Jalan Tol Serang–Panimbang (Section 1)"},
+       {"tgl": "2026-03-01", "catatan": "Estimate: functional during Lebaran 2026, exact date not found", "sumber": "id.wikipedia Jalan Tol Serang–Panimbang (Section 2)"}]},
+
+    {"nama": "Jalan Tol Surabaya–Gempol",
+     "titik": ["Dupak", "Porong", "Kejapanan", "Gempol"],
+     "seksi": [
+       {"tgl": "1986-07-26", "sumber": "id.wikipedia Jalan Tol Surabaya–Gempol (original 1986 stretch)"},
+       {"tgl": "2018-12-20", "sumber": "id.wikipedia Jalan Tol Surabaya–Gempol (Porong–Kejapanan relocation)"},
+       {"tgl": "2015-05-18", "sumber": "id.wikipedia Jalan Tol Surabaya–Gempol (Kejapanan–Gempol)"}]},
+
+    {"nama": "Jalan Tol Kertosono–Mojokerto",
+     "titik": ["Bandar", "Jombang", "Mojokerto Barat"],
+     "seksi": [
+       {"tgl": "2014-10-13", "sumber": "id.wikipedia Jalan Tol Kertosono–Mojokerto (Section 1 Bandar–Jombang)"},
+       {"tgl": "2017-09-10", "catatan": "Includes Section 3 Mojokerto Barat–Timur (Dec 2016)", "sumber": "id.wikipedia Jalan Tol Kertosono–Mojokerto (Section 2, inauguration)"}]},
+
+    {"nama": "Jalan Tol Yogyakarta–Surakarta",
+     "titik": ["Kartasura", "Klaten", "Prambanan"],
+     "seksi": [
+       {"tgl": "2024-09-20", "sumber": "id.wikipedia Jalan Tol Solo–Yogyakarta–YIA (Package 1.1 Kartasura–Klaten)"},
+       {"tgl": "2025-07-02", "sumber": "id.wikipedia Jalan Tol Solo–Yogyakarta–YIA (Klaten–Prambanan)"}]},
+
+    {"nama": "Jalan Tol Manado - Bitung",
+     "titik": ["Manado", "Danowudu", "Bitung"],
+     "seksi": [
+       {"tgl": "2020-09-29", "sumber": "id.wikipedia Jalan Tol Manado–Bitung (Manado–Danowudu)"},
+       {"tgl": null, "status": "Danowudu–Bitung opening date not found", "sumber": "id.wikipedia Jalan Tol Manado–Bitung"}]},
+
+    {"nama": "Jalan Tol Lingkar Luar Jakarta",
+     "titik": [[106.745, -6.125], "Kembangan", "Joglo", "Ulujami", "Veteran", "Pondok Pinang", "TMII", "Jatiasih", "Cikunir", "Cakung", "Cilincing"],
+     "seksi": [
+       {"tgl": "2010-02-18", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (W1)"},
+       {"tgl": "2013-12-27", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (W2U Section 1)"},
+       {"tgl": "2013-12-27", "catatan": "Ulujami end opened 22 Jul 2014", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (W2U Section 2)"},
+       {"tgl": "2004-09-07", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (W2S Section 1)"},
+       {"tgl": "2003-09-29", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (W2S Section 2)"},
+       {"tgl": "1995-09-04", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (S)"},
+       {"tgl": null, "status": "Spans eras (TMII–Hankam 2003, Hankam–Jatiasih 2006), not yet split", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (E1)"},
+       {"tgl": "2007-08-28", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (E1 Section 4)"},
+       {"tgl": "1990-10-20", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (E2)"},
+       {"tgl": "2007-01-21", "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (E3)"}]}
+  ]
+}

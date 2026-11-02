@@ -1,0 +1,376 @@
+{
+ "_catatan": "Dates by OSM toll road NAME. Only roads whose sections ALL fall in one era (boundaries 20 Oct 2004/2014/2024). tgl = first year of operation (YYYY-01-01), not the inauguration date. Roads spanning eras are left blank on purpose until split by section. Verify against BPJT before publishing.",
+ "ruas": [
+  {
+   "nama": [
+    "Jalan Tol Jagorawi",
+    "Jalan Tol Jakarta–Bogor–Ciawi"
+   ],
+   "tgl": "1978-01-01",
+   "sumber": "id.wikipedia Daftar jalan tol di Indonesia (Jagorawi 1978)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Semarang"
+   ],
+   "tgl": "1983-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (Semarang ABC 1983)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Jakarta–Merak"
+   ],
+   "tgl": "1984-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (Jakarta–Tangerang 1984, Tangerang–Merak 1992)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Jakarta–Cikampek"
+   ],
+   "tgl": "1988-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (1988)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Palimanan–Kanci"
+   ],
+   "tgl": "1998-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (1998)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Kanci–Pejagan"
+   ],
+   "tgl": "2010-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (2010)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Cikopo–Palimanan"
+   ],
+   "tgl": "2015-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (2015)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Pejagan–Pemalang"
+   ],
+   "tgl": "2016-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (2016-2018)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Medan–Binjai"
+   ],
+   "tgl": "2017-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Sumatera (2017, 2018, 2021)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Medan - Tebing Tinggi"
+   ],
+   "tgl": "2017-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Sumatera (2017-2019)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Gempol–Pasuruan",
+    "Jembatan Layang Jalan Tol Gempol–Pasuruan"
+   ],
+   "tgl": "2017-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (2017-2018)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Bakauheni–Terbanggi Besar"
+   ],
+   "tgl": "2018-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Sumatera (2018-2019)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Pemalang–Batang"
+   ],
+   "tgl": "2018-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (Nov-Dec 2018)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Semarang–Batang"
+   ],
+   "tgl": "2018-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (Dec 2018)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Solo–Ngawi"
+   ],
+   "tgl": "2018-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (Mar-Nov 2018)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Ngawi–Kertosono"
+   ],
+   "tgl": "2018-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (Mar-Dec 2018)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Pasuruan–Probolinggo"
+   ],
+   "tgl": "2019-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Jawa (Apr 2019, Aug 2023)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Bengkulu–Lubuklinggau"
+   ],
+   "tgl": "2023-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Sumatera (Taba Penanjung–Bengkulu 2023, 17.6 km in operation)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Indralaya–Muara Enim"
+   ],
+   "tgl": "2023-01-01",
+   "sumber": "id.wikipedia Jalan Tol Trans-Sumatera (2023)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Terbanggi Besar–Pematang Panggang–Kayu Agung"
+   ],
+   "tgl": "2019-11-15",
+   "sumber": "id.wikipedia Jalan Tol Terbanggi Besar–Pematang Panggang–Kayu Agung (inaugurated 15 Nov 2019)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Pekanbaru–Dumai"
+   ],
+   "tgl": "2020-09-25",
+   "sumber": "id.wikipedia Jalan Tol Pekanbaru–Dumai (inaugurated 25 Sep 2020)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Balikpapan–Samarinda"
+   ],
+   "tgl": "2019-12-17",
+   "sumber": "id.wikipedia Jalan Tol Balikpapan–Samarinda (Section II–IV 2019, Section I and V 2021)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Kisaran–Tebing Tinggi"
+   ],
+   "tgl": "2024-02-07",
+   "sumber": "id.wikipedia Jalan Tol Indrapura–Kisaran (7 Feb and May 2024, inaugurated 16 Oct 2024)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Cileunyi–Sumedang–Dawuan"
+   ],
+   "tgl": "2022-01-25",
+   "sumber": "id.wikipedia Jalan Tol Cileunyi–Sumedang–Dawuan (2022-2023)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Pekanbaru–Padang"
+   ],
+   "tgl": "2022-10-27",
+   "sumber": "id.wikipedia Jalan Tol Padang–Pekanbaru (Pekanbaru–Bangkinang 27 Oct 2022, Bangkinang–XIII Koto Kampar 31 May 2024)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Padang–Pekanbaru"
+   ],
+   "tgl": "2025-05-28",
+   "sumber": "web search: Padang–Sicincin opened to the public 28 May 2025 (Metro TV)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Kuala Tanjung–Tebing Tinggi"
+   ],
+   "tgl": "2025-03-09",
+   "sumber": "id.wikipedia Jalan Tol Kuala Tanjung–Tebing Tinggi–Parapat (Indrapura–Kuala Tanjung 9 Mar 2025)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Tebing Tinggi–Parapat"
+   ],
+   "tgl": "2024-09-10",
+   "sumber": "id.wikipedia Jalan Tol Kuala Tanjung–Tebing Tinggi–Parapat (Tebing Tinggi–Simpang Panei 10 Sep 2024)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Pandaan–Malang"
+   ],
+   "tgl": "2019-05-13",
+   "sumber": "id.wikipedia Jalan Tol Pandaan–Malang (2019-2020)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Kayu Agung–Palembang–Betung"
+   ],
+   "tgl": "2020-04-01",
+   "sumber": "id.wikipedia Jalan Tol Kayu Agung–Palembang–Betung (1 Apr 2020, 26 Jan 2021)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Padalarang–Cileunyi"
+   ],
+   "tgl": "1991-03-11",
+   "sumber": "id.wikipedia Jalan Tol Padaleunyi (11 Mar 1991)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Bayung Lencir—Tempino"
+   ],
+   "tgl": "2024-10-17",
+   "sumber": "web search: inaugurated 16 Oct 2024, opened 17 Oct 2024 (Kontan, Bisnis.com)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Betung–Jambi"
+   ],
+   "tgl": "2025-09-14",
+   "sumber": "id.wikipedia Jalan Tol Betung–Jambi (Tempino–Pijoan 14 Sep 2025)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Belmera"
+   ],
+   "tgl": "1986-01-01",
+   "sumber": "id.wikipedia Jalan Tol Belawan–Medan–Tanjung Morawa (1986)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Serpong–Balaraja"
+   ],
+   "tgl": "2022-09-21",
+   "sumber": "id.wikipedia Jalan Tol Serpong–Balaraja (Section 1A 2022, 1B 30 Sep 2024)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Bogor–Ciawi–Sukabumi",
+    "Jalan Tol Bogor-Ciawi-Sukabumi"
+   ],
+   "tgl": "2018-12-01",
+   "sumber": "id.wikipedia Jalan Tol Bocimi (Section I 1 Dec 2018, Section II 4 Aug 2023)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Cimanggis–Cibitung"
+   ],
+   "tgl": "2020-11-10",
+   "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta 2 (Section 1 10 Nov 2020)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Cibitung–Cilincing"
+   ],
+   "tgl": "2021-07-31",
+   "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta 2 (Section 1 31 Jul 2021)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Cengkareng–Batuceper–Kunciran"
+   ],
+   "tgl": "2021-04-01",
+   "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta 2 (1 Apr 2021)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Kunciran–Serpong"
+   ],
+   "tgl": "2019-12-06",
+   "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta 2 (6 Dec 2019)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Serpong–Cinere",
+    "Jalan Tol Serpong-Cinere",
+    "Jalan Tol Serpong Cinere"
+   ],
+   "tgl": "2021-04-01",
+   "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta 2 (Section 1 1 Apr 2021)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Depok–Antasari",
+    "Jalan Tol Antasari–Depok"
+   ],
+   "tgl": "2018-09-27",
+   "sumber": "id.wikipedia Jalan Tol Depok–Antasari (Section 1 27 Sep 2018, Section 2 3 Jul 2020)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Surabaya - Gresik",
+    "Jalan Tol Surabaya–Gresik",
+    "Jalan Tol Surabaya- Gresik",
+    "Jalan Tol Surabaya – Gresik"
+   ],
+   "tgl": "1993-01-01",
+   "sumber": "id.wikipedia Jalan Tol Surabaya–Gresik (since 1993)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Waru–Juanda"
+   ],
+   "tgl": "2008-04-27",
+   "sumber": "id.wikipedia Jalan Tol Waru–Juanda (27 Apr 2008)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Gempol–Pandaan"
+   ],
+   "tgl": "2015-06-12",
+   "sumber": "id.wikipedia Jalan Tol Gempol–Pandaan (12 Jun 2015, 13 May 2019)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Krian - Legundi - Bunder - Manyar"
+   ],
+   "tgl": "2020-11-28",
+   "sumber": "id.wikipedia Jalan Tol Krian–Legundi–Bunder–Manyar (Section I-III 28 Nov 2020)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Bali Mandara"
+   ],
+   "tgl": "2013-09-23",
+   "sumber": "id.wikipedia Jalan Tol Bali Mandara (23 Sep 2013)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Semarang–Demak"
+   ],
+   "tgl": "2023-02-25",
+   "sumber": "id.wikipedia Jalan Tol Semarang–Demak (since 25 Feb 2023)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Palembang–Indralaya"
+   ],
+   "tgl": "2017-10-12",
+   "sumber": "id.wikipedia Jalan Tol Palembang–Indralaya (inaugurated 12 Oct 2017)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Akses Tanjung Priok"
+   ],
+   "tgl": "2017-04-15",
+   "sumber": "id.wikipedia Jalan Tol Lingkar Luar Jakarta (N Cilincing–Tanjung Priok 15 Apr 2017)"
+  },
+  {
+   "nama": [
+    "Jalan Tol Cawang–Pluit",
+    "Jalan Tol Pelabuhan",
+    "Jalan Tol Insinyur Wiyoto Wiyono",
+    "Jalan Tol Lingkar Dalam Jakarta",
+    "Tol Dalam Kota Jakarta",
+    "Jalan Tol Dalam Kota Jakarta"
+   ],
+   "tgl": "1990-04-25",
+   "sumber": "id.wikipedia Jalan Tol Lingkar Dalam Jakarta (built 1987-1996, JIRR since 25 Apr 1990)"
+  }
+ ]
+}
