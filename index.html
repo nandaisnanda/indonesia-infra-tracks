@@ -34,22 +34,15 @@
   .era:hover{background:rgba(255,255,255,.04);border-color:var(--line2)}
   .era:active{transform:scale(.99)}
   .era.dim{opacity:.38}
-  .era.solo{border-color:var(--c);box-shadow:0 0 0 1px var(--c) inset,0 0 22px color-mix(in srgb,var(--c) 40%,transparent);background:rgba(255,255,255,.05)}
-  .era{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 70%);border-left:3px solid var(--c)}
-  .avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0b0d10;flex:none;box-shadow:0 0 16px color-mix(in srgb,var(--c) 55%,transparent)}
-  .bar i{box-shadow:0 0 8px var(--c)}
-  #time{border-color:color-mix(in srgb,var(--yc) 55%,var(--line));box-shadow:0 10px 40px rgba(0,0,0,.35),0 0 28px color-mix(in srgb,var(--yc) 28%,transparent);transition:border-color .4s,box-shadow .4s}
-  #year{color:var(--yc);text-shadow:0 0 14px color-mix(in srgb,var(--yc) 60%,transparent);transition:color .4s}
-  #time input[type=range]{accent-color:var(--yc)}
-  #play{background:var(--yc);transition:background .4s,transform .15s}
-  #play:hover{transform:scale(1.08)}
+  .era.solo{border-color:var(--c);box-shadow:0 0 0 1px var(--c) inset;background:rgba(255,255,255,.05)}
+  .avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0b0d10;flex:none}
   :root{--yc:#fff}
-  #ghost{position:absolute;right:28px;bottom:104px;font:700 clamp(90px,16vw,200px)/1 "JetBrains Mono",monospace;color:var(--yc);opacity:.16;pointer-events:none;letter-spacing:-.04em;text-shadow:0 0 60px var(--yc);transition:color .5s}
-  #ghost.pop{animation:gpop .9s cubic-bezier(.2,.8,.2,1)}
-  @keyframes gpop{0%{transform:scale(1.12);opacity:.38}100%{transform:scale(1);opacity:.16}}
-  #badge{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;font:600 14px "JetBrains Mono",monospace;color:#0b0d10;background:var(--yc);box-shadow:0 0 26px var(--yc);white-space:nowrap;pointer-events:none;opacity:0}
-  #badge.pop{animation:bpop 2.2s cubic-bezier(.2,.8,.2,1)}
-  @keyframes bpop{0%{opacity:0;transform:translate(-50%,14px) scale(.8)}12%{opacity:1;transform:translate(-50%,0) scale(1.08)}22%{transform:translate(-50%,0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-8px)}}
+  #year{color:var(--yc)}
+  #time input[type=range]{accent-color:var(--yc)}
+  #badge{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);padding:5px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font:500 12px "JetBrains Mono",monospace;color:var(--ink);white-space:nowrap;pointer-events:none;opacity:0;display:flex;gap:8px;align-items:center}
+  #badge::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--yc)}
+  #badge.pop{animation:bpop 2.4s ease-out}
+  @keyframes bpop{0%{opacity:0;transform:translate(-50%,6px)}10%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
   .era .t{flex:1;min-width:0}
   .era .n{font-weight:600;font-size:14px}
   .era .p{color:var(--muted);font-size:12px;font-family:"JetBrains Mono",monospace}
@@ -111,7 +104,6 @@
 </div>
 
 <div id="demo"></div>
-<div id="ghost">2026</div>
 <div id="badge"></div>
 
 <div id="time" class="panel">
@@ -123,10 +115,10 @@
 
 <script>
 const ERAS = [
-  {id:"pre", nama:"Before 2004", periode:"to Oct 2004", ini:"–",  color:"#a78bfa", start:"1000-01-01", end:"2004-10-20"},
-  {id:"sby", nama:"Susilo Bambang Yudhoyono", periode:"Oct 2004 – Oct 2014", ini:"SBY", color:"#1fb6ff", start:"2004-10-20", end:"2014-10-20"},
-  {id:"jkw", nama:"Joko Widodo", periode:"Oct 2014 – Oct 2024", ini:"JKW", color:"#ff9500", start:"2014-10-20", end:"2024-10-20"},
-  {id:"pbw", nama:"Prabowo Subianto", periode:"Oct 2024 – present", ini:"PS", color:"#ff2d87", start:"2024-10-20", end:"2100-01-01"},
+  {id:"pre", nama:"Before 2004", periode:"to Oct 2004", ini:"–",  color:"#8b7ec8", start:"1000-01-01", end:"2004-10-20"},
+  {id:"sby", nama:"Susilo Bambang Yudhoyono", periode:"Oct 2004 – Oct 2014", ini:"SBY", color:"#2f9bd8", start:"2004-10-20", end:"2014-10-20"},
+  {id:"jkw", nama:"Joko Widodo", periode:"Oct 2014 – Oct 2024", ini:"JKW", color:"#f08a24", start:"2014-10-20", end:"2024-10-20"},
+  {id:"pbw", nama:"Prabowo Subianto", periode:"Oct 2024 – present", ini:"PS", color:"#d6407a", start:"2024-10-20", end:"2100-01-01"},
   {id:"ada", nama:"Existing, date unknown", periode:"railways and roads without a date", ini:"•", color:"#6b7686"},
   {id:"raw", nama:"Undated toll sections", periode:"spans eras / not yet open", ini:"?", color:"#5b6573"},
 ];
@@ -268,20 +260,12 @@ function addLayerSet(k){
   // keep ORDER stacking even when layers finish loading out of order
   const later = ORDER.slice(ORDER.indexOf(k)+1).find(j=>map.getLayer(j+"-under")), before = later && later+"-under";
   const add = l => map.addLayer(l, before);
-  if(light){
-    add({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":"#ffffff","line-opacity":k==="jalan"?.7:.95,"line-width":W(...L.under)}});
-  }else{
-    add({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.6,L.glow[1]*.5),"line-opacity":["case",["match",["get","era"],["raw","ada"],true,false],.1,k==="jalan"?.2:.4]}});
-  }
-  const paint = {"line-color":colorExpr,"line-width":W(...L.w),"line-opacity":faint};
+  // casing: white on light basemaps, dark on dark ones, so lines stay crisp where they cross
+  OPS[k] = {under: light ? (k==="jalan"?.7:.95) : (k==="jalan"?.35:.7), core: faint};
+  add({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":light?"#ffffff":"#0b0d10","line-opacity":OPS[k].under,"line-width":W(...L.under)}});
+  const paint = {"line-color":colorExpr,"line-width":W(...L.w),"line-opacity":OPS[k].core};
   if(L.dash) paint["line-dasharray"] = L.dash;
   add({id:k+"-core",type:"line",source:k,layout:round,paint});
-  // flowing light dashes along every opened line
-  add({id:k+"-flow",type:"line",source:k,layout:{...round,"line-cap":"butt"},paint:{
-    "line-color":"#ffffff","line-width":W(L.w[0]*.4,L.w[1]*.4),"line-opacity":["interpolate",["linear"],["zoom"],5,0,8,.7],"line-dasharray":FLOW[0]}});
-  // light wave that sweeps west to east across lines opened in the selected year
-  add({id:k+"-new",type:"line",source:k,layout:round,paint:{
-    "line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.4,L.glow[1]*.3),"line-opacity":0}});
   add({id:k+"-hl",type:"line",source:k,layout:round,filter:["==",["get","nama"],""],paint:{
     "line-color":light?"#111":"#fff","line-width":W(L.w[0]+1,L.w[1]+2),"line-opacity":.9}});
   add({id:k+"-hit",type:"line",source:k,layout:round,paint:{"line-color":"#000","line-opacity":0,"line-width":12}});
@@ -290,49 +274,46 @@ function addLayerSet(k){
 function addAll(){ ORDER.forEach(k=>{ if(DATA[k] && !map.getSource(k)) addLayerSet(k); }); }
 function applyFilter(){
   ORDER.forEach(k=>{ if(map.getLayer(k+"-core")){
-    [k+"-under",k+"-core",k+"-flow",k+"-hit"].forEach(l=>map.setFilter(l,filterExpr()));
-    const f = ["all",["==",["get","tahun"],state.year]];
-    if(state.solo) f.push(["==",["get","era"],state.solo]);
-    map.setFilter(k+"-new",f);
+    [k+"-under",k+"-core",k+"-hit"].forEach(l=>map.setFilter(l,filterExpr()));
   } });
 }
 
 // ---------- animation ----------
-// Dash frames that make the white dashes slide along the line
-const FLOW = [[0,4,3],[.5,4,2.5],[1,4,2],[1.5,4,1.5],[2,4,1],[2.5,4,.5],[3,4,0],[0,.5,3,3.5],[0,1,3,3],[0,1.5,3,2.5],[0,2,3,2],[0,2.5,3,1.5],[0,3,3,1],[0,3.5,3,.5]];
-// Opacity by distance between the wave head (h) and a feature's west-east position: sharp front, long fading tail
-function wave(h){
+// Lines opened in the selected year are drawn in from west to east. h = how far the reveal has got (0..1).
+const OPS = {};
+const SWEEP_MS = 800;
+function setOps(h){
   const sw = ["/",["-",["get","lon"],state.lo],state.span];
-  return ["let","d",["-",h,sw],["case",[">=",["var","d"],0],["max",0,["-",1,["*",["var","d"],2.2]]],["max",0,["+",1,["*",["var","d"],14]]]]];
+  const rv = ["max",0,["min",1,["*",["-",h,sw],8]]];
+  ORDER.forEach(k=>{
+    if(!map.getLayer(k+"-core")) return;
+    ["under","core"].forEach(l=>{
+      const base = OPS[k][l];
+      map.setPaintProperty(`${k}-${l}`,"line-opacity", h==null ? base : ["case",["==",["get","tahun"],state.year],["*",base,rv],base]);
+    });
+  });
 }
-let flashAt = -1e9, flashLive = false, flowSeq = -1;
+let sweepAt = 0, sweeping = false;
 function flash(){
   let lo=Infinity, hi=-Infinity;
   active().forEach(k=>DATA[k].features.forEach(f=>{ const p=f.properties; if(p.tahun===state.year){ if(p.lon<lo)lo=p.lon; if(p.lon>hi)hi=p.lon; } }));
   state.lo = isFinite(lo) ? lo : 0; state.span = Math.max(hi-lo,.5);
-  flashAt = performance.now(); flashLive = true;
+  sweepAt = performance.now(); sweeping = true;
 }
 function loop(t){
-  const f = Math.min(1,(t-flashAt)/1700), h = -.05 + 1.55*(1-Math.pow(1-f,3));
-  const seq = Math.floor(t/70) % FLOW.length;
-  ORDER.forEach(k=>{
-    if(flashLive && map.getLayer(k+"-new")){
-      map.setPaintProperty(k+"-new","line-opacity",f<1?wave(h):0);
-    }
-    if(seq!==flowSeq && map.getLayer(k+"-flow")) map.setPaintProperty(k+"-flow","line-dasharray",FLOW[seq]);
-  });
-  flowSeq = seq;
-  if(f>=1) flashLive = false;
+  if(sweeping){
+    const f = Math.min(1,(t-sweepAt)/SWEEP_MS), e = f<.5 ? 2*f*f : 1-Math.pow(-2*f+2,2)/2;
+    if(f<1) setOps(-.15 + 1.3*e); else { setOps(null); sweeping = false; }
+  }
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 
 function popYear(){
   const km = active().reduce((s,k)=>s+DATA[k].features.reduce((t,f)=>{ const p=f.properties; return t + (p.tahun===state.year && (!state.solo||p.era===state.solo) ? p.km : 0); },0),0);
-  const g = document.getElementById("ghost"), b = document.getElementById("badge");
+  const b = document.getElementById("badge");
   b.textContent = km>0 ? `+${fmt(km)} km opened in ${state.year}` : `Nothing new in ${state.year}`;
-  b.style.opacity = "";
-  [g,b].forEach(el=>{ el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); });
+  b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
 }
 
 async function ensureLayer(k){
@@ -353,7 +334,7 @@ async function ensureLayer(k){
     return false;
   }
   loading[k] = false;
-  // "idle" never fires while the flow animation repaints, so poll instead
+  // poll rather than wait for "idle", which does not fire while the map is repainting
   const tryAdd = () => map.isStyleLoaded() ? addAll() : setTimeout(tryAdd,100);
   tryAdd();
   return true;
@@ -369,7 +350,7 @@ function layerKm(){
 function renderLayers(){
   const lk = layerKm();
   document.getElementById("layers").innerHTML = ORDER.slice().reverse().map(k=>`
-    <label class="lay" style="--c:${k==="tol"?"#ff9500":k==="rel"?"#1fb6ff":"#a78bfa"}">
+    <label class="lay" style="--c:${k==="tol"?"#f08a24":k==="rel"?"#2f9bd8":"#8b7ec8"}">
       <input type="checkbox" data-k="${k}" ${on[k]?"checked":""}>
       <i class="${LAYERS[k].dash?"d":""}"></i><span>${LAYERS[k].label}</span>
       <span class="k">${loading[k]?"loading…":(on[k]&&DATA[k]?fmt(lk[k])+" km":"")}</span>
@@ -379,7 +360,7 @@ function renderLayers(){
       const k = el.dataset.k; on[k] = el.checked;
       if(popup) popup.remove();
       if(on[k] && !DATA[k]) await ensureLayer(k);
-      ORDER.forEach(j=>{ if(map.getLayer(j+"-core")) ["under","core","flow","new","hl","hit"].forEach(s=>map.setLayoutProperty(`${j}-${s}`,"visibility",on[j]?"visible":"none")); });
+      ORDER.forEach(j=>{ if(map.getLayer(j+"-core")) ["under","core","hl","hit"].forEach(s=>map.setLayoutProperty(`${j}-${s}`,"visibility",on[j]?"visible":"none")); });
       update();
     };
   });
@@ -415,7 +396,6 @@ function update(){
   document.getElementById("year").textContent = state.year;
   state.yc = ERAS.find(e=>e.id===eraOf(`${state.year}-07-01`)).color;
   document.documentElement.style.setProperty("--yc", state.yc);
-  document.getElementById("ghost").textContent = state.year;
   applyFilter();
   renderStats();
   renderLayers();
@@ -493,7 +473,7 @@ play.onclick=()=>{
   timer=setInterval(()=>{
     state.year++; slider.value=state.year; update(); flash(); popYear();
     if(state.year>=+slider.max){ clearInterval(timer); timer=null; play.textContent="▶"; }
-  },500);
+  },800);
 };
 </script>
 </body>
