@@ -38,11 +38,18 @@
   .era{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 70%);border-left:3px solid var(--c)}
   .avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0b0d10;flex:none;box-shadow:0 0 16px color-mix(in srgb,var(--c) 55%,transparent)}
   .bar i{box-shadow:0 0 8px var(--c)}
-  #time{--yc:#fff;border-color:color-mix(in srgb,var(--yc) 55%,var(--line));box-shadow:0 10px 40px rgba(0,0,0,.35),0 0 28px color-mix(in srgb,var(--yc) 28%,transparent);transition:border-color .4s,box-shadow .4s}
+  #time{border-color:color-mix(in srgb,var(--yc) 55%,var(--line));box-shadow:0 10px 40px rgba(0,0,0,.35),0 0 28px color-mix(in srgb,var(--yc) 28%,transparent);transition:border-color .4s,box-shadow .4s}
   #year{color:var(--yc);text-shadow:0 0 14px color-mix(in srgb,var(--yc) 60%,transparent);transition:color .4s}
   #time input[type=range]{accent-color:var(--yc)}
   #play{background:var(--yc);transition:background .4s,transform .15s}
   #play:hover{transform:scale(1.08)}
+  :root{--yc:#fff}
+  #ghost{position:absolute;right:28px;bottom:104px;font:700 clamp(90px,16vw,200px)/1 "JetBrains Mono",monospace;color:var(--yc);opacity:.16;pointer-events:none;letter-spacing:-.04em;text-shadow:0 0 60px var(--yc);transition:color .5s}
+  #ghost.pop{animation:gpop .9s cubic-bezier(.2,.8,.2,1)}
+  @keyframes gpop{0%{transform:scale(1.12);opacity:.38}100%{transform:scale(1);opacity:.16}}
+  #badge{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;font:600 14px "JetBrains Mono",monospace;color:#0b0d10;background:var(--yc);box-shadow:0 0 26px var(--yc);white-space:nowrap;pointer-events:none;opacity:0}
+  #badge.pop{animation:bpop 2.2s cubic-bezier(.2,.8,.2,1)}
+  @keyframes bpop{0%{opacity:0;transform:translate(-50%,14px) scale(.8)}12%{opacity:1;transform:translate(-50%,0) scale(1.08)}22%{transform:translate(-50%,0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-8px)}}
   .era .t{flex:1;min-width:0}
   .era .n{font-weight:600;font-size:14px}
   .era .p{color:var(--muted);font-size:12px;font-family:"JetBrains Mono",monospace}
@@ -104,6 +111,8 @@
 </div>
 
 <div id="demo"></div>
+<div id="ghost">2026</div>
+<div id="badge"></div>
 
 <div id="time" class="panel">
   <button id="play" aria-label="Play">▶</button>
@@ -190,6 +199,7 @@ function prep(fc, k){
   const undated = k==="tol" ? "raw" : "ada";
   fc.features.forEach(f=>{
     const p=f.properties;
+    const g0 = f.geometry.coordinates; p.lon = f.geometry.type==="LineString" ? g0[0][0] : g0[0][0][0];
     p.km = +p.panjang_km > 0 ? +p.panjang_km : +lenKm(f.geometry).toFixed(2);
     if(!p.tgl_operasi){ p.tgl_operasi=""; p.tahun=0; p.era=undated; return; }
     const d=String(p.tgl_operasi).slice(0,10);
@@ -255,44 +265,74 @@ function addLayerSet(k){
   const L = LAYERS[k], light = BASEMAPS[bmIdx].mode==="light";
   const round = {"line-cap":"round","line-join":"round",visibility:on[k]?"visible":"none"};
   map.addSource(k,{type:"geojson",data:DATA[k]});
+  // keep ORDER stacking even when layers finish loading out of order
+  const later = ORDER.slice(ORDER.indexOf(k)+1).find(j=>map.getLayer(j+"-under")), before = later && later+"-under";
+  const add = l => map.addLayer(l, before);
   if(light){
-    map.addLayer({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":"#ffffff","line-opacity":k==="jalan"?.7:.95,"line-width":W(...L.under)}});
+    add({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":"#ffffff","line-opacity":k==="jalan"?.7:.95,"line-width":W(...L.under)}});
   }else{
-    map.addLayer({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.6,L.glow[1]*.5),"line-opacity":k==="jalan"?.2:.4}});
+    add({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.6,L.glow[1]*.5),"line-opacity":["case",["match",["get","era"],["raw","ada"],true,false],.1,k==="jalan"?.2:.4]}});
   }
   const paint = {"line-color":colorExpr,"line-width":W(...L.w),"line-opacity":faint};
   if(L.dash) paint["line-dasharray"] = L.dash;
-  map.addLayer({id:k+"-core",type:"line",source:k,layout:round,paint});
-  // flash layer: lines that opened in the current year, animated by flashTick()
-  map.addLayer({id:k+"-new",type:"line",source:k,layout:round,paint:{
-    "line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.5,L.glow[1]*.4),"line-opacity":0}});
-  map.addLayer({id:k+"-hl",type:"line",source:k,layout:round,filter:["==",["get","nama"],""],paint:{
+  add({id:k+"-core",type:"line",source:k,layout:round,paint});
+  // flowing light dashes along every opened line
+  add({id:k+"-flow",type:"line",source:k,layout:{...round,"line-cap":"butt"},paint:{
+    "line-color":"#ffffff","line-width":W(L.w[0]*.4,L.w[1]*.4),"line-opacity":["interpolate",["linear"],["zoom"],5,0,8,.7],"line-dasharray":FLOW[0]}});
+  // light wave that sweeps west to east across lines opened in the selected year
+  add({id:k+"-new",type:"line",source:k,layout:round,paint:{
+    "line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.4,L.glow[1]*.3),"line-opacity":0}});
+  add({id:k+"-hl",type:"line",source:k,layout:round,filter:["==",["get","nama"],""],paint:{
     "line-color":light?"#111":"#fff","line-width":W(L.w[0]+1,L.w[1]+2),"line-opacity":.9}});
-  map.addLayer({id:k+"-hit",type:"line",source:k,layout:round,paint:{"line-color":"#000","line-opacity":0,"line-width":12}});
+  add({id:k+"-hit",type:"line",source:k,layout:round,paint:{"line-color":"#000","line-opacity":0,"line-width":12}});
   applyFilter();
 }
 function addAll(){ ORDER.forEach(k=>{ if(DATA[k] && !map.getSource(k)) addLayerSet(k); }); }
 function applyFilter(){
   ORDER.forEach(k=>{ if(map.getLayer(k+"-core")){
-    [k+"-under",k+"-core",k+"-hit"].forEach(l=>map.setFilter(l,filterExpr()));
+    [k+"-under",k+"-core",k+"-flow",k+"-hit"].forEach(l=>map.setFilter(l,filterExpr()));
     const f = ["all",["==",["get","tahun"],state.year]];
     if(state.solo) f.push(["==",["get","era"],state.solo]);
     map.setFilter(k+"-new",f);
   } });
 }
 
-// Brief expanding glow on lines that opened in the selected year
-let flashAt = 0, flashRaf = 0;
-function flash(){ flashAt = performance.now(); if(!flashRaf) flashRaf = requestAnimationFrame(flashTick); }
-function flashTick(t){
-  const a = Math.max(0, 1-(t-flashAt)/1000), m = 1+(1-a)*1.8;
+// ---------- animation ----------
+// Dash frames that make the white dashes slide along the line
+const FLOW = [[0,4,3],[.5,4,2.5],[1,4,2],[1.5,4,1.5],[2,4,1],[2.5,4,.5],[3,4,0],[0,.5,3,3.5],[0,1,3,3],[0,1.5,3,2.5],[0,2,3,2],[0,2.5,3,1.5],[0,3,3,1],[0,3.5,3,.5]];
+// Opacity by distance between the wave head (h) and a feature's west-east position: sharp front, long fading tail
+function wave(h){
+  const sw = ["/",["-",["get","lon"],state.lo],state.span];
+  return ["let","d",["-",h,sw],["case",[">=",["var","d"],0],["max",0,["-",1,["*",["var","d"],2.2]]],["max",0,["+",1,["*",["var","d"],14]]]]];
+}
+let flashAt = -1e9, flashLive = false, flowSeq = -1;
+function flash(){
+  let lo=Infinity, hi=-Infinity;
+  active().forEach(k=>DATA[k].features.forEach(f=>{ const p=f.properties; if(p.tahun===state.year){ if(p.lon<lo)lo=p.lon; if(p.lon>hi)hi=p.lon; } }));
+  state.lo = isFinite(lo) ? lo : 0; state.span = Math.max(hi-lo,.5);
+  flashAt = performance.now(); flashLive = true;
+}
+function loop(t){
+  const f = Math.min(1,(t-flashAt)/1700), h = -.05 + 1.55*(1-Math.pow(1-f,3));
+  const seq = Math.floor(t/70) % FLOW.length;
   ORDER.forEach(k=>{
-    if(!map.getLayer(k+"-new")) return;
-    const L = LAYERS[k];
-    map.setPaintProperty(k+"-new","line-opacity",a);
-    map.setPaintProperty(k+"-new","line-width",W(L.glow[0]*m,L.glow[1]*m));
+    if(flashLive && map.getLayer(k+"-new")){
+      map.setPaintProperty(k+"-new","line-opacity",f<1?wave(h):0);
+    }
+    if(seq!==flowSeq && map.getLayer(k+"-flow")) map.setPaintProperty(k+"-flow","line-dasharray",FLOW[seq]);
   });
-  flashRaf = a>0 ? requestAnimationFrame(flashTick) : 0;
+  flowSeq = seq;
+  if(f>=1) flashLive = false;
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+function popYear(){
+  const km = active().reduce((s,k)=>s+DATA[k].features.reduce((t,f)=>{ const p=f.properties; return t + (p.tahun===state.year && (!state.solo||p.era===state.solo) ? p.km : 0); },0),0);
+  const g = document.getElementById("ghost"), b = document.getElementById("badge");
+  b.textContent = km>0 ? `+${fmt(km)} km opened in ${state.year}` : `Nothing new in ${state.year}`;
+  b.style.opacity = "";
+  [g,b].forEach(el=>{ el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); });
 }
 
 async function ensureLayer(k){
@@ -313,7 +353,9 @@ async function ensureLayer(k){
     return false;
   }
   loading[k] = false;
-  if(map.isStyleLoaded()) addAll(); else map.once("idle",addAll);
+  // "idle" never fires while the flow animation repaints, so poll instead
+  const tryAdd = () => map.isStyleLoaded() ? addAll() : setTimeout(tryAdd,100);
+  tryAdd();
   return true;
 }
 
@@ -337,7 +379,7 @@ function renderLayers(){
       const k = el.dataset.k; on[k] = el.checked;
       if(popup) popup.remove();
       if(on[k] && !DATA[k]) await ensureLayer(k);
-      ORDER.forEach(j=>{ if(map.getLayer(j+"-core")) ["under","core","new","hl","hit"].forEach(s=>map.setLayoutProperty(`${j}-${s}`,"visibility",on[j]?"visible":"none")); });
+      ORDER.forEach(j=>{ if(map.getLayer(j+"-core")) ["under","core","flow","new","hl","hit"].forEach(s=>map.setLayoutProperty(`${j}-${s}`,"visibility",on[j]?"visible":"none")); });
       update();
     };
   });
@@ -371,7 +413,9 @@ function renderStats(){
 
 function update(){
   document.getElementById("year").textContent = state.year;
-  document.getElementById("time").style.setProperty("--yc", ERAS.find(e=>e.id===eraOf(`${state.year}-07-01`)).color);
+  state.yc = ERAS.find(e=>e.id===eraOf(`${state.year}-07-01`)).color;
+  document.documentElement.style.setProperty("--yc", state.yc);
+  document.getElementById("ghost").textContent = state.year;
   applyFilter();
   renderStats();
   renderLayers();
@@ -440,14 +484,14 @@ map.on("load", async ()=>{
 });
 
 const slider=document.getElementById("slider"), play=document.getElementById("play");
-slider.oninput=()=>{ state.year=+slider.value; update(); flash(); };
+slider.oninput=()=>{ state.year=+slider.value; update(); flash(); popYear(); };
 let timer=null;
 play.onclick=()=>{
   if(timer){ clearInterval(timer); timer=null; play.textContent="▶"; return; }
   if(state.year>=+slider.max) state.year=+slider.min-1;
   play.textContent="❚❚";
   timer=setInterval(()=>{
-    state.year++; slider.value=state.year; update(); flash();
+    state.year++; slider.value=state.year; update(); flash(); popYear();
     if(state.year>=+slider.max){ clearInterval(timer); timer=null; play.textContent="▶"; }
   },500);
 };
