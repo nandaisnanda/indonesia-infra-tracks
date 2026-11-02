@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Indonesia Toll Lines</title>
-<meta name="description" content="Indonesia's toll road network by the year each section opened, grouped by presidential era. #30DayMapChallenge Day 2: Lines.">
+<title>Indonesia Infrastructure Lines</title>
+<meta name="description" content="Indonesia's toll roads, railways and national roads by the year each line opened, grouped by presidential era. #30DayMapChallenge Day 2: Lines.">
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -20,6 +20,13 @@
   #side{top:16px;left:16px;width:350px;max-height:calc(100% - 128px);overflow:auto;padding:20px;scrollbar-width:thin}
   h1{font-size:24px;line-height:1.1;margin:0 0 6px;letter-spacing:-.01em}
   .sub{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.5}
+  .lay{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer;font-size:13px;user-select:none}
+  .lay:hover{border-color:var(--line2)}
+  .lay input{accent-color:var(--ink);margin:0}
+  .lay i{width:22px;height:0;border-top:3px solid var(--c);flex:none}
+  .lay i.d{border-top-style:dashed}
+  .lay .k{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+  #layers{margin-bottom:12px}
   .reset{display:none;width:100%;margin:0 0 10px;padding:8px 10px;border-radius:10px;border:1px dashed var(--line2);background:transparent;color:var(--ink);font:500 13px "Space Grotesk",sans-serif;cursor:pointer}
   .reset.on{display:block}
   .reset:hover{background:rgba(255,255,255,.06)}
@@ -72,13 +79,14 @@
 <div id="map"></div>
 
 <aside id="side" class="panel">
-  <h1>Indonesia Toll Lines</h1>
-  <p class="sub">Toll roads by <b>year of opening</b>, grouped by presidential term. Click a card to focus on one era, click a line to zoom to that toll road.</p>
+  <h1>Indonesia Infrastructure Lines</h1>
+  <p class="sub">Toll roads, railways and national roads by <b>year of opening</b>, grouped by presidential term. Switch layers on or off, click a card to focus on one era, click a line to zoom to it.</p>
+  <div id="layers"></div>
   <button id="reset" class="reset">← Show all eras</button>
   <div id="eras"></div>
   <div class="note">
-    <b>How to read:</b> color shows when a toll section opened, not who planned or built it. Grey = opening date not found, section not yet split out, or not yet open.<br><br>
-    Data: geometry © OpenStreetMap contributors (ODbL); opening dates from Indonesian Wikipedia and news reports, not verified against BPJT. Map: Web Mercator, for exploration, not for comparing areas.<br>
+    <b>How to read:</b> color shows when a toll section opened, not who planned or built it. Grey = opening date not found. Railways and national roads without a date show as "existing" and are always visible.<br><br>
+    Data: geometry © OpenStreetMap contributors (ODbL); toll dates from Indonesian Wikipedia and news reports, not verified against BPJT. Rail dates come from OSM tags and a short curated list. Km: toll = carriageway ÷ 2, rail = track, roads = centerline. Map: Web Mercator, for exploration, not for comparing areas.<br>
     #30DayMapChallenge · Day 2 Lines · Ananda Gunawan
   </div>
 </aside>
@@ -99,18 +107,29 @@
 
 <script>
 const ERAS = [
-  {id:"pre", nama:"Before 2004", periode:"1978 – Oct 2004", ini:"–",  color:"#9ca3af", start:"1900-01-01", end:"2004-10-20"},
+  {id:"pre", nama:"Before 2004", periode:"to Oct 2004", ini:"–",  color:"#9ca3af", start:"1000-01-01", end:"2004-10-20"},
   {id:"sby", nama:"Susilo Bambang Yudhoyono", periode:"Oct 2004 – Oct 2014", ini:"SBY", color:"#56B4E9", start:"2004-10-20", end:"2014-10-20"},
   {id:"jkw", nama:"Joko Widodo", periode:"Oct 2014 – Oct 2024", ini:"JKW", color:"#E69F00", start:"2014-10-20", end:"2024-10-20"},
   {id:"pbw", nama:"Prabowo Subianto", periode:"Oct 2024 – present", ini:"PS", color:"#CC79A7", start:"2024-10-20", end:"2100-01-01"},
-  {id:"raw", nama:"Undated", periode:"spans eras / not yet open", ini:"?", color:"#5b6573"},
+  {id:"ada", nama:"Existing, date unknown", periode:"railways and roads without a date", ini:"•", color:"#6b7686"},
+  {id:"raw", nama:"Undated toll sections", periode:"spans eras / not yet open", ini:"?", color:"#5b6573"},
 ];
-const eraOf = d => (ERAS.find(e => d >= e.start && d < e.end) || ERAS[0]).id;
+const eraOf = d => (ERAS.find(e => e.start && d >= e.start && d < e.end) || ERAS[0]).id;
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt = n => n.toLocaleString("en-US",{maximumFractionDigits:1});
 const mobile = () => innerWidth <= 640;
 
-// Line length (km) when the panjang_km column is empty
+// One entry per line layer. w = core width at low / high zoom, under = casing, glow = dark-mode glow.
+const LAYERS = {
+  tol:  {label:"Toll roads",     noun:"toll road", len:"Carriageway length", file:"data/tol.geojson",   w:[2.6,7],   under:[5,12],    glow:[8,24], dash:null},
+  rel:  {label:"Railways",       noun:"railway",   len:"Track length",       file:"data/rel.geojson",   w:[1.8,4.5], under:[3.8,8.5], glow:[6,14], dash:[2.2,1.5]},
+  jalan:{label:"National roads", noun:"road",      len:"Length",             file:"data/jalan.geojson", w:[1,2.8],   under:[2.6,5.4], glow:[3,8],  dash:null},
+};
+const ORDER = ["jalan","rel","tol"];          // draw order, bottom to top
+const on = {tol:true, rel:true, jalan:false};
+const DATA = {};
+const loading = {};
+
 function lenKm(geom){
   const R=6371, rad=x=>x*Math.PI/180;
   const seg = c => { let s=0; for(let i=1;i<c.length;i++){
@@ -132,10 +151,10 @@ const DEMO = {type:"FeatureCollection",features:[
 ].map(([n,d,c])=>({type:"Feature",properties:{nama:n,tgl_operasi:d},geometry:{type:"LineString",coordinates:c}}))};
 
 let RAW = false;
-async function loadData(){
+async function loadTol(){
   const banner = document.getElementById("demo");
   try{
-    const r = await fetch("data/tol.geojson",{cache:"no-store"});
+    const r = await fetch(LAYERS.tol.file,{cache:"no-store"});
     if(!r.ok) throw 0;
     return await r.json();
   }catch(e){
@@ -154,17 +173,18 @@ async function loadData(){
   }
 }
 
-function prep(fc){
-  if(RAW){
+function prep(fc, k){
+  if(RAW && k==="tol"){
     fc.features = fc.features.filter(f => f.geometry).map(f=>({type:"Feature",geometry:f.geometry,
       properties:{nama:f.properties.name||"Unnamed", tgl_operasi:"", tahun:0, era:"raw", km:0}}));
     return fc;
   }
   fc.features = fc.features.filter(f => f.geometry && f.properties);
+  const undated = k==="tol" ? "raw" : "ada";
   fc.features.forEach(f=>{
     const p=f.properties;
     p.km = +p.panjang_km > 0 ? +p.panjang_km : +lenKm(f.geometry).toFixed(2);
-    if(!p.tgl_operasi){ p.tgl_operasi=""; p.tahun=0; p.era="raw"; return; }
+    if(!p.tgl_operasi){ p.tgl_operasi=""; p.tahun=0; p.era=undated; return; }
     const d=String(p.tgl_operasi).slice(0,10);
     p.tgl_operasi=d; p.tahun=+d.slice(0,4); p.era=eraOf(d);
   });
@@ -191,7 +211,7 @@ const BASEMAPS = [
 let bmIdx = 1;
 
 const state = {year:2026, solo:null};
-let DATA, popup, pinned = false;
+let popup, pinned = false;
 
 const map = new maplibregl.Map({
   container:"map", style:BASEMAPS[bmIdx].style,
@@ -201,10 +221,11 @@ map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-rig
 
 // ---------- view ----------
 const pad = () => mobile() ? {top:innerHeight*.44, bottom:150, left:24, right:24} : {top:70, bottom:130, left:400, right:70};
-function bboxOf(pred){
+const active = () => ORDER.filter(k => on[k] && DATA[k]);
+function bboxOf(pred, keys=active()){
   const b=[Infinity,Infinity,-Infinity,-Infinity];
   const add = c => { if(c[0]<b[0])b[0]=c[0]; if(c[1]<b[1])b[1]=c[1]; if(c[0]>b[2])b[2]=c[0]; if(c[1]>b[3])b[3]=c[1]; };
-  for(const f of DATA.features){
+  for(const k of keys) for(const f of DATA[k].features){
     if(!pred(f.properties)) continue;
     const g=f.geometry;
     (g.type==="LineString"?[g.coordinates]:g.coordinates).forEach(l=>l.forEach(add));
@@ -221,40 +242,97 @@ function filterExpr(){
 }
 const colorExpr = ["match",["get","era"], ...ERAS.flatMap(e=>[e.id,e.color]), "#9aa4b2"];
 const W = (a,b) => ["interpolate",["exponential",1.4],["zoom"],4,a,8,a*2.2,12,b,16,b*1.6];
+const faint = ["case",["match",["get","era"],["raw","ada"],true,false],.55,1];
 
-function addTol(){
-  const light = BASEMAPS[bmIdx].mode==="light";
-  map.addSource("tol",{type:"geojson",data:DATA});
-  const round = {"line-cap":"round","line-join":"round"};
+function addLayerSet(k){
+  const L = LAYERS[k], light = BASEMAPS[bmIdx].mode==="light";
+  const round = {"line-cap":"round","line-join":"round",visibility:on[k]?"visible":"none"};
+  map.addSource(k,{type:"geojson",data:DATA[k]});
   if(light){
-    map.addLayer({id:"tol-under",type:"line",source:"tol",layout:round,paint:{"line-color":"#ffffff","line-opacity":.95,"line-width":W(5,12)}});
+    map.addLayer({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":"#ffffff","line-opacity":k==="jalan"?.7:.95,"line-width":W(...L.under)}});
   }else{
-    map.addLayer({id:"tol-under",type:"line",source:"tol",layout:round,paint:{"line-color":colorExpr,"line-width":W(8,24),"line-blur":W(5,12),"line-opacity":.4}});
+    map.addLayer({id:k+"-under",type:"line",source:k,layout:round,paint:{"line-color":colorExpr,"line-width":W(...L.glow),"line-blur":W(L.glow[0]*.6,L.glow[1]*.5),"line-opacity":k==="jalan"?.2:.4}});
   }
-  map.addLayer({id:"tol-core",type:"line",source:"tol",layout:round,paint:{
-    "line-color":colorExpr,"line-width":W(2.6,7),"line-opacity":["case",["==",["get","era"],"raw"],.85,1]}});
-  map.addLayer({id:"tol-hl",type:"line",source:"tol",layout:round,filter:["==",["get","nama"],""],paint:{
-    "line-color":light?"#111":"#fff","line-width":W(3.6,9),"line-opacity":.9}});
+  const paint = {"line-color":colorExpr,"line-width":W(...L.w),"line-opacity":faint};
+  if(L.dash) paint["line-dasharray"] = L.dash;
+  map.addLayer({id:k+"-core",type:"line",source:k,layout:round,paint});
+  map.addLayer({id:k+"-hl",type:"line",source:k,layout:round,filter:["==",["get","nama"],""],paint:{
+    "line-color":light?"#111":"#fff","line-width":W(L.w[0]+1,L.w[1]+2),"line-opacity":.9}});
+  map.addLayer({id:k+"-hit",type:"line",source:k,layout:round,paint:{"line-color":"#000","line-opacity":0,"line-width":12}});
   applyFilter();
 }
-function applyFilter(){ if(map.getLayer("tol-core")) ["tol-under","tol-core"].forEach(l=>map.setFilter(l,filterExpr())); }
+function addAll(){ ORDER.forEach(k=>{ if(DATA[k] && !map.getSource(k)) addLayerSet(k); }); }
+function applyFilter(){
+  ORDER.forEach(k=>{ if(map.getLayer(k+"-core")) [k+"-under",k+"-core",k+"-hit"].forEach(l=>map.setFilter(l,filterExpr())); });
+}
+
+async function ensureLayer(k){
+  if(DATA[k]) return true;
+  if(loading[k]) return false;
+  loading[k] = true; renderLayers();
+  try{
+    if(k==="tol") DATA[k] = prep(await loadTol(), k);
+    else{
+      const r = await fetch(LAYERS[k].file);
+      if(!r.ok) throw 0;
+      DATA[k] = prep(await r.json(), k);
+    }
+  }catch(e){
+    on[k] = false; loading[k] = false; renderLayers();
+    const b = document.getElementById("demo");
+    b.style.display="block"; b.textContent = `${LAYERS[k].label}: data file not found.`;
+    return false;
+  }
+  loading[k] = false;
+  if(map.isStyleLoaded()) addAll(); else map.once("idle",addAll);
+  return true;
+}
+
+function layerKm(){
+  const lk = {};
+  for(const k of active()){
+    lk[k] = DATA[k].features.reduce((s,f)=>{ const p=f.properties; return s + (p.tahun<=state.year && (!state.solo||p.era===state.solo) ? p.km : 0); },0);
+  }
+  return lk;
+}
+function renderLayers(){
+  const lk = layerKm();
+  document.getElementById("layers").innerHTML = ORDER.slice().reverse().map(k=>`
+    <label class="lay" style="--c:${k==="tol"?"#E69F00":k==="rel"?"#56B4E9":"#9ca3af"}">
+      <input type="checkbox" data-k="${k}" ${on[k]?"checked":""}>
+      <i class="${LAYERS[k].dash?"d":""}"></i><span>${LAYERS[k].label}</span>
+      <span class="k">${loading[k]?"loading…":(on[k]&&DATA[k]?fmt(lk[k])+" km":"")}</span>
+    </label>`).join("");
+  document.querySelectorAll("#layers input").forEach(el=>{
+    el.onchange = async ()=>{
+      const k = el.dataset.k; on[k] = el.checked;
+      if(popup) popup.remove();
+      if(on[k] && !DATA[k]) await ensureLayer(k);
+      ORDER.forEach(j=>{ if(map.getLayer(j+"-core")) ["under","core","hl","hit"].forEach(s=>map.setLayoutProperty(`${j}-${s}`,"visibility",on[j]?"visible":"none")); });
+      update();
+    };
+  });
+}
 
 function renderStats(){
   const km = Object.fromEntries(ERAS.map(e=>[e.id,0]));
-  DATA.features.forEach(f=>{ if(f.properties.tahun<=state.year) km[f.properties.era]+=f.properties.km; });
-  const max = Math.max(...Object.values(km),1);
-  document.getElementById("eras").innerHTML = ERAS.filter(e=>!RAW||e.id==="raw").map(e=>`
+  active().forEach(k=>DATA[k].features.forEach(f=>{ if(f.properties.tahun<=state.year) km[f.properties.era]+=f.properties.km; }));
+  const max = Math.max(...ERAS.filter(e=>e.id!=="ada").map(e=>km[e.id]),1);   // undated context would flatten the era bars
+  const show = e => RAW ? e.id==="raw"
+    : e.id==="ada" ? (on.rel&&DATA.rel)||(on.jalan&&DATA.jalan)
+    : e.id==="raw" ? on.tol && DATA.tol : true;
+  document.getElementById("eras").innerHTML = ERAS.filter(show).map(e=>`
     <div class="era ${state.solo&&state.solo!==e.id?"dim":""} ${state.solo===e.id?"solo":""}" style="--c:${e.color}" data-id="${e.id}" role="button" tabindex="0" aria-pressed="${state.solo===e.id}">
       <div class="avatar" style="background:${e.color}">${e.ini}</div>
       <div class="t">
         <div class="n">${e.nama}</div>
         <div class="p">${e.periode}</div>
-        <div class="bar"><i style="width:${km[e.id]/max*100}%;background:${e.color}"></i></div>
+        <div class="bar"><i style="width:${Math.min(km[e.id]/max*100,100)}%;background:${e.color}"></i></div>
       </div>
       <div class="km">${fmt(km[e.id])}<br><span class="p">km</span></div>
     </div>`).join("");
-  const shown = ERAS.filter(e=>!state.solo||state.solo===e.id).reduce((s,e)=>s+km[e.id],0);
-  document.getElementById("total").textContent = RAW ? `${DATA.features.length.toLocaleString("en-US")} OSM ways` : `${fmt(shown)} km`;
+  const shown = Object.values(layerKm()).reduce((s,v)=>s+v,0);
+  document.getElementById("total").textContent = RAW ? `${(DATA.tol?.features.length||0).toLocaleString("en-US")} OSM ways` : `${fmt(shown)} km`;
   document.getElementById("reset").classList.toggle("on",!!state.solo);
   document.querySelectorAll(".era").forEach(el=>{
     const pick=()=>focusEra(el.dataset.id);
@@ -266,6 +344,7 @@ function update(){
   document.getElementById("year").textContent = state.year;
   applyFilter();
   renderStats();
+  renderLayers();
 }
 
 function focusEra(id){
@@ -278,33 +357,38 @@ function resetEra(){ state.solo=null; update(); home(); }
 document.getElementById("reset").onclick = resetEra;
 
 // ---------- popup & click ----------
-function popupHTML(p){
-  const era=ERAS.find(x=>x.id===p.era);
-  const rows = p.era==="raw"
-    ? `<b>${esc(p.status||"Opening date not filled in")}</b>`
+function popupHTML(p,k){
+  const L=LAYERS[k], era=ERAS.find(x=>x.id===p.era);
+  const rows = p.era==="raw" ? `<b>${esc(p.status||"Opening date not filled in")}</b>`
+    : p.era==="ada" ? `<b>Existing, opening date not known</b>`
     : `Opened: <b>${esc(p.tgl_operasi)}</b><br>Era: <b style="color:${era.color}">${esc(era.nama)}</b>`;
-  return `<div class="pp-n">${esc(p.nama)}</div>${p.seksi?`<div class="pp-s">Section ${esc(p.seksi)}</div>`:""}
-    <div class="pp-m">${rows}<br>Carriageway length: ${fmt(+p.km)} km${p.catatan?`<br>${esc(p.catatan)}`:""}${p.sumber?`<br>Source: ${esc(p.sumber)}`:""}</div>
-    <div class="pp-h">Click to zoom to this toll road</div>`;
+  const sub = p.seksi ? `Section ${esc(p.seksi)}` : [p.jenis,p.ref,p.operator].filter(Boolean).map(esc).join(" · ");
+  return `<div class="pp-n">${esc(p.nama)}</div>${sub?`<div class="pp-s">${sub}</div>`:""}
+    <div class="pp-m">${rows}<br>${L.len}: ${fmt(+p.km)} km${p.catatan?`<br>${esc(p.catatan)}`:""}${p.sumber?`<br>Source: ${esc(p.sumber)}`:""}</div>
+    <div class="pp-h">Click to zoom to this ${L.noun}</div>`;
 }
+const unnamed = n => !n || /^Unnamed|^No name/i.test(n);
 function wirePointer(){
   popup = new maplibregl.Popup({closeButton:false,offset:10,maxWidth:"290px"});
-  map.on("mousemove","tol-core",e=>{
-    map.getCanvas().style.cursor="pointer";
-    const p=e.features[0].properties;
-    map.setFilter("tol-hl",["==",["get","nama"],p.nama]);
-    if(!pinned) popup.setLngLat(e.lngLat).setHTML(popupHTML(p)).addTo(map);
-  });
-  map.on("mouseleave","tol-core",()=>{
-    map.getCanvas().style.cursor=""; map.setFilter("tol-hl",["==",["get","nama"],""]);
-    if(!pinned) popup.remove();
-  });
-  map.on("click","tol-core",e=>{
-    const p=e.features[0].properties;
-    pinned = true;
-    popup.setLngLat(e.lngLat).setHTML(popupHTML(p)).addTo(map);
-    fitTo(bboxOf(q=>q.nama===p.nama && q.tahun<=state.year));
-    map.once("moveend",()=>{ pinned=false; });
+  ORDER.forEach(k=>{
+    const hit = k+"-hit", hl = k+"-hl";
+    map.on("mousemove",hit,e=>{
+      map.getCanvas().style.cursor="pointer";
+      const p=e.features[0].properties;
+      map.setFilter(hl,["==",["get","nama"],unnamed(p.nama)?"":p.nama]);
+      if(!pinned) popup.setLngLat(e.lngLat).setHTML(popupHTML(p,k)).addTo(map);
+    });
+    map.on("mouseleave",hit,()=>{
+      map.getCanvas().style.cursor=""; map.setFilter(hl,["==",["get","nama"],""]);
+      if(!pinned) popup.remove();
+    });
+    map.on("click",hit,e=>{
+      const p=e.features[0].properties;
+      pinned = true;
+      popup.setLngLat(e.lngLat).setHTML(popupHTML(p,k)).addTo(map);
+      fitTo(bboxOf(q=>q.nama===p.nama && q.tahun<=state.year,[k]));
+      map.once("moveend",()=>{ pinned=false; });
+    });
   });
 }
 
@@ -315,15 +399,13 @@ grid.onclick = e=>{
   const btn=e.target.closest(".bm"); if(!btn) return;
   bmIdx=+btn.dataset.i;
   grid.querySelectorAll(".bm").forEach(x=>x.classList.toggle("on",x===btn));
-  map.setStyle(BASEMAPS[bmIdx].style,{diff:false}); // setStyle drops the toll layers; they are re-added on style.load
+  map.setStyle(BASEMAPS[bmIdx].style,{diff:false}); // setStyle drops the line layers; they are re-added on style.load
 };
-// every time a new style finishes loading, re-add the toll layers (also on first load if data is ready)
-map.on("style.load", ()=>{ if(DATA && !map.getSource("tol")) addTol(); });
+map.on("style.load", addAll);
 
 map.on("load", async ()=>{
-  DATA = prep(await loadData());
-  if(!map.getSource("tol")) addTol();
   wirePointer();
+  await Promise.all(ORDER.filter(k=>on[k]).map(ensureLayer));
   update();
 });
 

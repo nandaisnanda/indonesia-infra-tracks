@@ -1,0 +1,9 @@
+{
+  "ruas": [
+    {"nama": ["Jalur Kereta Cepat Jakarta–Bandung"], "tgl": "2023-10-02", "sumber": "Peresmian Whoosh, 2 Oktober 2023", "catatan": "High-speed rail"},
+    {"nama": ["LRT Palembang"], "tgl": "2018-07-27", "sumber": "Peresmian LRT Sumsel, Juli 2018", "catatan": ""},
+    {"nama": ["Kalayang Bandar Udara"], "tgl": "2017-09-17", "sumber": "Skytrain Soekarno-Hatta, September 2017", "catatan": "Airport people mover"},
+    {"nama": ["Jalur Kereta Api Bandara Soekarno-Hatta"], "tgl": "2017-12-26", "sumber": "KA Bandara Soekarno-Hatta, Desember 2017", "catatan": ""},
+    {"nama": ["Jalur Kereta Api Bandara Internasional Kualanamu"], "tgl": "2013-07-25", "sumber": "KA Bandara Kualanamu, Juli 2013", "catatan": ""}
+  ]
+}

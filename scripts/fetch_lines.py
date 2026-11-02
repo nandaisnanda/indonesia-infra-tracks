@@ -18,7 +18,7 @@ from pathlib import Path
 import requests
 
 OVERPASS = "https://overpass-api.de/api/interpreter"
-HEADERS = {"User-Agent": "garis-tol/1.0 (30DayMapChallenge; contact: anandashabrinaputrig@mail.ugm.ac.id)",
+HEADERS = {"User-Agent": "infra-lines/1.0 (30DayMapChallenge; contact: anandashabrinaputrig@mail.ugm.ac.id)",
            "Accept": "application/json"}
 DATA = Path(__file__).resolve().parent.parent / "data"
 

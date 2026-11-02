@@ -24,7 +24,7 @@ KEEP_TAGS = ("name", "ref", "operator", "oneway", "opening_date", "start_date")
 
 def main() -> int:
     print("Querying Overpass (can take 1-3 minutes)...")
-    headers = {"User-Agent": "garis-tol/1.0 (30DayMapChallenge; contact: anandashabrinaputrig@mail.ugm.ac.id)",
+    headers = {"User-Agent": "infra-lines/1.0 (30DayMapChallenge; contact: anandashabrinaputrig@mail.ugm.ac.id)",
                "Accept": "application/json"}
     r = requests.post(OVERPASS, data={"data": QUERY}, headers=headers, timeout=360)
     r.raise_for_status()
